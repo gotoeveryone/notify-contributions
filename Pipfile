@@ -1,0 +1,22 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+autopep8 = "*"
+
+[packages]
+chalice = "*"
+bs4 = "*"
+requests-oauthlib = "*"
+requests = "*"
+
+[requires]
+python_version = "3.7"
+
+[scripts]
+execute = "python main.py"
+deploy = "bash -c 'pipenv lock -r > requirements.txt && chalice deploy --stage prod'"
+code_check = "pycodestyle ."
+code_format = "autopep8 --in-place --recursive ."
