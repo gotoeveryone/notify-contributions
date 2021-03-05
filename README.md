@@ -1,5 +1,7 @@
 # Notify Github Contributions
 
+![Build Status](https://github.com/gotoeveryone/notify-github-contributions/workflows/Notify%20GitHub%20Contributions%20Build/badge.svg)
+
 ## Requirements
 
 - Python 3.7
