@@ -61,7 +61,7 @@ jobs:
         run: |
           cat .chalice/config.json.example | \
           jq -r ".stages.prod.iam_role_arn=\"${{ secrets.IAM_ROLE_ARN }}\"" | \
-          jq -r ".stages.prod.environment_variables.USER_NAME=\"${{ secrets.TWITTER_USER_NAME }}\"" | \
+          jq -r ".stages.prod.environment_variables.USER_NAME=\"${{ secrets.USER_NAME }}\"" | \
           jq -r ".stages.prod.environment_variables.CONSUMER_KEY=\"${{ secrets.TWITTER_CONSUMER_KEY }}\"" | \
           jq -r ".stages.prod.environment_variables.CONSUMER_SECRET=\"${{ secrets.TWITTER_CONSUMER_SECRET }}\"" | \
           jq -r ".stages.prod.environment_variables.ACCESS_TOKEN=\"${{ secrets.TWITTER_ACCESS_TOKEN }}\"" | \
