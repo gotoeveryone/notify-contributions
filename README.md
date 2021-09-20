@@ -4,9 +4,9 @@
 
 ## Requirements
 
-- Python 3.7
+- Python 3.8
 - pipenv
-- AWS account (use to Lambda)
+- AWS account (use to Lambda and Secrets Manager)
 - Twitter Account
 
 ## Setup
@@ -14,7 +14,6 @@
 ```console
 $ pipenv install # When with dev-package add `-d` option.
 $ cp .env.example .env # Please edit the value.
-$ cp event.json.example event.json # Please edit the value.
 ```
 
 ## Run (Local)

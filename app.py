@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 from chalice import Chalice, Cron
 import requests
 
-from chalicelib.social import Twitter
+from chalicelib.social import TwitterClient
 
 app = Chalice(app_name='notify-github-contributions')
 app.debug = True if os.getenv('DEBUG', False) else False
@@ -62,5 +62,10 @@ def lambda_handler(event, context={}):
     if app.debug:
         app.log.info(message)
     else:
-        client = Twitter()
-        return client.post(message)
+        client = TwitterClient()
+        res = client.send(message)
+
+        return {
+            'code': res.status_code,
+            'body': res.json(),
+        }
