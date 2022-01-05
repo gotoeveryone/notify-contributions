@@ -4,7 +4,7 @@
 
 ## Requirements
 
-- Python 3.8
+- Python 3.9
 - pipenv
 - AWS account (use to Lambda and Secrets Manager)
 - Twitter Account
