@@ -20,13 +20,19 @@ $ go mod download
 $ USER_NAME={user_name} DEBUG=1 go run src/cmd/main.go
 ```
 
-## Code check and format (with pycodestyle and autopep8)
+## Code check and format
 
 ```console
 $ # Code check
 $ go vet ./...
 $ # Format
 $ go fmt ./...
+```
+
+## Test
+
+```console
+$ go test ./...
 ```
 
 ## Deploy

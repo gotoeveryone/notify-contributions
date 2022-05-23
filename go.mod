@@ -10,6 +10,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ssm v1.27.1
 	github.com/dghubble/go-twitter v0.0.0-20220428155120-ee736133298b
 	github.com/dghubble/oauth1 v0.7.1
+	github.com/jarcoal/httpmock v1.2.0
 	github.com/sirupsen/logrus v1.8.1
 )
 
