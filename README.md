@@ -4,36 +4,44 @@
 
 ## Requirements
 
-- Python 3.9
-- pipenv
+- Golang
 - AWS account (use to Lambda and Secrets Manager)
-- Twitter Account
+- Twitter account
 
 ## Setup
 
 ```console
-$ pipenv install # When with dev-package add `-d` option.
-$ cp .env.example .env # Please edit the value.
+$ go mod download
 ```
 
 ## Run (Local)
 
 ```console
-$ pipenv run execute
+$ USER_NAME={user_name} DEBUG=1 go run src/cmd/main.go
 ```
 
-## Code check and format (with pycodestyle and autopep8)
+## Code check and format
 
 ```console
 $ # Code check
-$ pipenv run code_check
+$ go vet ./...
 $ # Format
-$ pipenv run code_format
+$ go fmt ./...
+```
+
+## Test
+
+```console
+$ go test ./...
 ```
 
 ## Deploy
 
+Use [lambroll](https://github.com/fujiwara/lambroll).
+
 ```console
-$ cp .chalice/config.json.example .chalice/config.json # Please edit the value.
-$ pipenv run deploy
+$ cp deploy/function.json.example deploy/function.json # Please edit the value.
+$ go build -o deploy/notify-github-contributions ./src/cmd/main.go
+$ cd deploy
+$ lambroll deploy
 ```

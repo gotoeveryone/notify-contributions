@@ -5,26 +5,9 @@
 .idea
 .vscode
 
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
+# goenv
+.go-version
 
-# pyenv
-.python-version
-
-# Environments
-.env
-.venv
-
-# requirements.txt
-requirements.txt
-
-# Lambda config
-event.json
-
-# chalice
-.chalice/config.json
-.chalice/deployed/
-.chalice/deployments/
-.chalice/venv/
+# lambroll
+deploy/function.json
+deploy/time-aggregation-notifier
