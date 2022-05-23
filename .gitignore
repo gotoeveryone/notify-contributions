@@ -10,4 +10,4 @@
 
 # lambroll
 deploy/function.json
-deploy/time-aggregation-notifier
+deploy/notify-github-contributions
