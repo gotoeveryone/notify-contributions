@@ -18,7 +18,7 @@ type MyEvent struct {
 
 func HandleRequest(ctx context.Context, name MyEvent) (string, error) {
 	userName := os.Getenv("USER_NAME")
-	baseDate := time.Now()
+	baseDate := time.Now().UTC()
 
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	if err != nil {
