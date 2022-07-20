@@ -1,6 +1,6 @@
 # Notify Github Contributions
 
-![Build Status](https://github.com/gotoeveryone/notify-github-contributions/workflows/Build/badge.svg)
+![CI Status](https://github.com/gotoeveryone/notify-github-contributions/workflows/CI/badge.svg)
 
 ## Requirements
 
