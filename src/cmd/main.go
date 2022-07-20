@@ -1,58 +1,51 @@
 package main
 
 import (
-	"context"
-	"gotoeveryone/notify-github-contributions/src/registry"
+	"log"
 	"os"
 	"time"
 
-	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/service/ssm"
-	"github.com/sirupsen/logrus"
+	"github.com/joho/godotenv"
+
+	"gotoeveryone/notify-github-contributions/src/domain/entity"
+	"gotoeveryone/notify-github-contributions/src/registry"
 )
 
-type MyEvent struct {
-	Name string `json:"name"`
-}
-
-func HandleRequest(ctx context.Context, name MyEvent) (string, error) {
+func notify() error {
 	userName := os.Getenv("USER_NAME")
+	t := entity.TwitterAuth{
+		ConsumerKey:       os.Getenv("TWITTER_COMSUMER_KEY"),
+		ConsumerSecret:    os.Getenv("TWITTER_COMSUMER_SECRET"),
+		AccessToken:       os.Getenv("TWITTER_ACCESS_TOKEN"),
+		AccessTokenSecret: os.Getenv("TWITTER_ACCESS_TOKEN_SECRET"),
+	}
+
 	baseDate := time.Now().UTC()
 
-	cfg, err := config.LoadDefaultConfig(context.TODO())
-	if err != nil {
-		return "failed", err
-	}
-	ssmClient := ssm.NewFromConfig(cfg)
-
 	cc := registry.NewGitHubClient()
-	tc, err := registry.NewTwitterClient(*ssmClient)
+	tc, err := registry.NewTwitterClient(t)
 	if err != nil {
 		if err != nil {
-			return "failed", err
+			return err
 		}
 	}
 
 	u := registry.NewContributionUsecase(cc, tc)
 	if err := u.Exec(userName, baseDate); err != nil {
-		return "failed", err
+		return err
 	}
-	return "success", err
+	return nil
 }
 
 func main() {
 	if os.Getenv("DEBUG") == "1" {
-		logrus.SetFormatter(&logrus.JSONFormatter{})
-
-		res, err := HandleRequest(context.TODO(), MyEvent{Name: "debug"})
+		err := godotenv.Load()
 		if err != nil {
-			logrus.Error(err)
-			os.Exit(1)
+			log.Fatal("Error loading .env file")
 		}
-		logrus.Info(res)
-		return
 	}
-
-	lambda.Start(HandleRequest)
+	if err := notify(); err != nil {
+		log.Println(err)
+		os.Exit(1)
+	}
 }

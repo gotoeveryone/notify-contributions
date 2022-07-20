@@ -1,7 +1,0 @@
-.lambdaignore
-function.json
-function.json.example
-function.zip
-.git/*
-.github/*
-src

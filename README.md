@@ -5,7 +5,6 @@
 ## Requirements
 
 - Golang
-- AWS account (use to Lambda and Secrets Manager)
 - Twitter account
 
 ## Setup
@@ -14,10 +13,11 @@
 $ go mod download
 ```
 
-## Run (Local)
+## Run
 
 ```console
-$ USER_NAME={user_name} DEBUG=1 go run src/cmd/main.go
+$ cp .env.example .env # please edit values
+$ DEBUG=1 go run src/cmd/main.go
 ```
 
 ## Code check and format
@@ -33,15 +33,4 @@ $ go fmt ./...
 
 ```console
 $ go test ./...
-```
-
-## Deploy
-
-Use [lambroll](https://github.com/fujiwara/lambroll).
-
-```console
-$ cp deploy/function.json.example deploy/function.json # Please edit the value.
-$ go build -o deploy/notify-github-contributions ./src/cmd/main.go
-$ cd deploy
-$ lambroll deploy
 ```

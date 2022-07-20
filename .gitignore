@@ -1,13 +1,12 @@
 # General
 .DS_Store
 
+# dotenv
+.env
+
 # Editor
 .idea
 .vscode
 
 # goenv
 .go-version
-
-# lambroll
-deploy/function.json
-deploy/notify-github-contributions

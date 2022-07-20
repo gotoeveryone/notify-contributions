@@ -1,6 +1,6 @@
 package entity
 
-type Twitter struct {
+type TwitterAuth struct {
 	ConsumerKey       string
 	ConsumerSecret    string
 	AccessToken       string
