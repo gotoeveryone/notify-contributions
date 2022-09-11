@@ -4,7 +4,7 @@
 
 ## Requirements
 
-- Golang
+- Golang 1.19
 - Twitter account
 
 ## Setup
