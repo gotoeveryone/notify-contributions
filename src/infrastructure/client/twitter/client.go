@@ -4,8 +4,8 @@ import (
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/dghubble/oauth1"
 
-	"gotoeveryone/notify-github-contributions/src/domain/client"
-	"gotoeveryone/notify-github-contributions/src/domain/entity"
+	"gotoeveryone/notify-contributions/src/domain/client"
+	"gotoeveryone/notify-contributions/src/domain/entity"
 )
 
 type twitterClient struct {

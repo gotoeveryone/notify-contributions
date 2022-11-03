@@ -1,4 +1,4 @@
-module gotoeveryone/notify-github-contributions
+module gotoeveryone/notify-contributions
 
 go 1.19
 

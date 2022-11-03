@@ -8,19 +8,23 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 
-	"gotoeveryone/notify-github-contributions/src/domain/client"
-	"gotoeveryone/notify-github-contributions/src/domain/entity"
+	"gotoeveryone/notify-contributions/src/domain/client"
+	"gotoeveryone/notify-contributions/src/domain/entity"
 )
 
-type githubClient struct{}
+type githubClient struct {
+	username string
+}
 
-func NewClient() client.Contribution {
-	return &githubClient{}
+func NewClient(username string) client.Contribution {
+	return &githubClient{
+		username: username,
+	}
 }
 
 // Get is find contribution by identifier
-func (c *githubClient) Get(identifier string, baseDate time.Time) (*entity.Contribution, error) {
-	res, err := http.Get(fmt.Sprintf("https://github.com/users/%s/contributions", identifier))
+func (c *githubClient) Get(baseDate time.Time) (*entity.Contribution, error) {
+	res, err := http.Get(fmt.Sprintf("https://github.com/users/%s/contributions", c.username))
 	if err != nil {
 		return nil, err
 	}
@@ -32,7 +36,7 @@ func (c *githubClient) Get(identifier string, baseDate time.Time) (*entity.Contr
 	}
 
 	e := entity.Contribution{
-		UserName: identifier,
+		Type:     "GitHub",
 		BaseDate: baseDate,
 	}
 

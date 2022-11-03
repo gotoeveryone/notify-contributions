@@ -3,7 +3,7 @@ package mock
 import (
 	"time"
 
-	"gotoeveryone/notify-github-contributions/src/domain/entity"
+	"gotoeveryone/notify-contributions/src/domain/entity"
 )
 
 type ContributionClient struct {
@@ -11,7 +11,7 @@ type ContributionClient struct {
 	Err    error
 }
 
-func (c *ContributionClient) Get(identifier string, baseDate time.Time) (*entity.Contribution, error) {
+func (c *ContributionClient) Get(baseDate time.Time) (*entity.Contribution, error) {
 	return c.Entity, c.Err
 }
 
