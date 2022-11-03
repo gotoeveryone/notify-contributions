@@ -2,7 +2,10 @@ package usecase
 
 import (
 	"errors"
-	"gotoeveryone/notify-github-contributions/src/domain/client"
+	"gotoeveryone/notify-contributions/src/domain/client"
+	"log"
+	"os"
+	"strings"
 	"time"
 )
 
@@ -11,29 +14,38 @@ var (
 )
 
 type Contribution interface {
-	Exec(identifier string, baseDate time.Time) error
+	Exec(baseDate time.Time) error
 }
 
 type contributionUsecase struct {
-	source       client.Contribution
+	sources      []client.Contribution
 	notification client.Notification
 }
 
-func NewContributionUsecase(source client.Contribution, notification client.Notification) Contribution {
+func NewContributionUsecase(sources []client.Contribution, notification client.Notification) Contribution {
 	return &contributionUsecase{
-		source:       source,
+		sources:      sources,
 		notification: notification,
 	}
 }
 
 // Exec is get contribution and notify
-func (u *contributionUsecase) Exec(identifier string, baseDate time.Time) error {
-	c, err := u.source.Get(identifier, baseDate)
-	if err != nil {
-		return err
+func (u *contributionUsecase) Exec(baseDate time.Time) error {
+	messages := []string{}
+	for _, source := range u.sources {
+		c, err := source.Get(baseDate)
+		if err != nil {
+			return err
+		}
+		if c == nil {
+			return ErrContributionNotFound
+		}
+		messages = append(messages, c.Message())
 	}
-	if c == nil {
-		return ErrContributionNotFound
+	message := strings.Join(messages, "\n\n")
+	if os.Getenv("DEBUG") != "" {
+		log.Println(message)
+		return nil
 	}
-	return u.notification.Exec(c.Message())
+	return u.notification.Exec(message)
 }

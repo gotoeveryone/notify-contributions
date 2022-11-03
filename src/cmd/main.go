@@ -7,12 +7,12 @@ import (
 
 	"github.com/joho/godotenv"
 
-	"gotoeveryone/notify-github-contributions/src/domain/entity"
-	"gotoeveryone/notify-github-contributions/src/registry"
+	"gotoeveryone/notify-contributions/src/domain/client"
+	"gotoeveryone/notify-contributions/src/domain/entity"
+	"gotoeveryone/notify-contributions/src/registry"
 )
 
 func notify() error {
-	userName := os.Getenv("USER_NAME")
 	t := entity.TwitterAuth{
 		ConsumerKey:       os.Getenv("TWITTER_COMSUMER_KEY"),
 		ConsumerSecret:    os.Getenv("TWITTER_COMSUMER_SECRET"),
@@ -22,7 +22,8 @@ func notify() error {
 
 	baseDate := time.Now().UTC()
 
-	cc := registry.NewGitHubClient()
+	ghc := registry.NewGitHubClient(os.Getenv("GITHUB_USER_NAME"))
+	glc := registry.NewGitlabClient(os.Getenv("GITLAB_USER_ID"), os.Getenv("GITLAB_TOKEN"))
 	tc, err := registry.NewTwitterClient(t)
 	if err != nil {
 		if err != nil {
@@ -30,15 +31,15 @@ func notify() error {
 		}
 	}
 
-	u := registry.NewContributionUsecase(cc, tc)
-	if err := u.Exec(userName, baseDate); err != nil {
+	u := registry.NewContributionUsecase([]client.Contribution{ghc, glc}, tc)
+	if err := u.Exec(baseDate); err != nil {
 		return err
 	}
 	return nil
 }
 
 func main() {
-	if os.Getenv("DEBUG") == "1" {
+	if os.Getenv("DEBUG") != "" {
 		err := godotenv.Load()
 		if err != nil {
 			log.Fatal("Error loading .env file")

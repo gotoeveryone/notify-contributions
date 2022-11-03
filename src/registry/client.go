@@ -1,15 +1,21 @@
 package registry
 
 import (
-	"gotoeveryone/notify-github-contributions/src/domain/client"
-	"gotoeveryone/notify-github-contributions/src/domain/entity"
-	"gotoeveryone/notify-github-contributions/src/infrastructure/client/github"
-	"gotoeveryone/notify-github-contributions/src/infrastructure/client/twitter"
+	"gotoeveryone/notify-contributions/src/domain/client"
+	"gotoeveryone/notify-contributions/src/domain/entity"
+	"gotoeveryone/notify-contributions/src/infrastructure/client/github"
+	"gotoeveryone/notify-contributions/src/infrastructure/client/gitlab"
+	"gotoeveryone/notify-contributions/src/infrastructure/client/twitter"
 )
 
-// NewGitHubClient create client for about contribution use github
-func NewGitHubClient() client.Contribution {
-	return github.NewClient()
+// NewGitHubClient create client for about contribution use GitHub
+func NewGitHubClient(username string) client.Contribution {
+	return github.NewClient(username)
+}
+
+// NewGitlabClient create client for about contribution use Gitlab
+func NewGitlabClient(userID string, token string) client.Contribution {
+	return gitlab.NewClient(userID, token)
 }
 
 // NewTwitterClient is create client for about notification use twitter
