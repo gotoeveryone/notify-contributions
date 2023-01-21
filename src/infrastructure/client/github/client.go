@@ -41,13 +41,12 @@ func (c *githubClient) Get(baseDate time.Time) (*entity.Contribution, error) {
 		BaseDate: baseDate,
 	}
 
-	r := regexp.MustCompile(`(\d+) contributions on`)
+	r := regexp.MustCompile(`(\d+) contributions? on`)
 
 	yesterday := baseDate.AddDate(0, 0, -1)
 	doc.Find(fmt.Sprintf("rect[data-date=\"%s\"]", baseDate.Format("2006-01-02"))).Each(func(i int, s *goquery.Selection) {
 		if r.MatchString(s.Text()) {
 			t := r.FindStringSubmatch(s.Text())[1]
-			fmt.Print("matched!!", t)
 			if v, err := strconv.Atoi(t); err == nil {
 				e.BaseDateCount = v
 			}
