@@ -31,6 +31,7 @@ jobs:
 
       - name: Execute
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_USER_NAME: ${{ github.repository_owner }}
           GITLAB_USER_ID: ${{ secrets.GITLAB_USER_ID }}
           GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
