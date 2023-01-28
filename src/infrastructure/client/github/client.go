@@ -1,13 +1,12 @@
 package github
 
 import (
-	"fmt"
-	"net/http"
-	"regexp"
-	"strconv"
+	"context"
+	"os"
 	"time"
 
-	"github.com/PuerkitoBio/goquery"
+	"github.com/shurcooL/githubv4"
+	"golang.org/x/oauth2"
 
 	"gotoeveryone/notify-contributions/src/domain/client"
 	"gotoeveryone/notify-contributions/src/domain/entity"
@@ -25,13 +24,35 @@ func NewClient(username string) client.Contribution {
 
 // Get is find contribution by identifier
 func (c *githubClient) Get(baseDate time.Time) (*entity.Contribution, error) {
-	res, err := http.Get(fmt.Sprintf("https://github.com/users/%s/contributions", c.username))
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
+	src := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: os.Getenv("GITHUB_TOKEN")},
+	)
+	httpClient := oauth2.NewClient(context.Background(), src)
+	client := githubv4.NewClient(httpClient)
 
-	doc, err := goquery.NewDocumentFromReader(res.Body)
+	var query struct {
+		User struct {
+			ContrbutionsCollection struct {
+				ContributionCalendar struct {
+					Weeks []struct {
+						ContributionDays []struct {
+							ContributionCount githubv4.Int
+							Date              githubv4.String
+						}
+					}
+				}
+			} `graphql:"contributionsCollection(from: $from, to: $to)"`
+		} `graphql:"user(login: $login)"`
+	}
+
+	yesterday := baseDate.AddDate(0, 0, -1)
+	variable := map[string]interface{}{
+		"login": githubv4.String(c.username),
+		"from":  githubv4.DateTime{Time: yesterday},
+		"to":    githubv4.DateTime{Time: baseDate},
+	}
+
+	err := client.Query(context.Background(), &query, variable)
 	if err != nil {
 		return nil, err
 	}
@@ -41,25 +62,15 @@ func (c *githubClient) Get(baseDate time.Time) (*entity.Contribution, error) {
 		BaseDate: baseDate,
 	}
 
-	r := regexp.MustCompile(`(\d+) contributions? on`)
-
-	yesterday := baseDate.AddDate(0, 0, -1)
-	doc.Find(fmt.Sprintf("rect[data-date=\"%s\"]", baseDate.Format("2006-01-02"))).Each(func(i int, s *goquery.Selection) {
-		if r.MatchString(s.Text()) {
-			t := r.FindStringSubmatch(s.Text())[1]
-			if v, err := strconv.Atoi(t); err == nil {
-				e.BaseDateCount = v
+	for _, w := range query.User.ContrbutionsCollection.ContributionCalendar.Weeks {
+		for _, d := range w.ContributionDays {
+			if string(d.Date) == yesterday.Format("2006-01-02") {
+				e.YesterdayCount = int(d.ContributionCount)
+			} else if string(d.Date) == baseDate.Format("2006-01-02") {
+				e.BaseDateCount = int(d.ContributionCount)
 			}
 		}
-	})
-	doc.Find(fmt.Sprintf("rect[data-date=\"%s\"]", yesterday.Format("2006-01-02"))).Each(func(i int, s *goquery.Selection) {
-		if r.MatchString(s.Text()) {
-			t := r.FindStringSubmatch(s.Text())[1]
-			if v, err := strconv.Atoi(t); err == nil {
-				e.YesterdayCount = v
-			}
-		}
-	})
+	}
 
 	return &e, nil
 }
