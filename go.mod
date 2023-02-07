@@ -6,7 +6,7 @@ require (
 	github.com/dghubble/go-twitter v0.0.0-20220428155120-ee736133298b
 	github.com/dghubble/oauth1 v0.7.2
 	github.com/jarcoal/httpmock v1.3.0
-	github.com/joho/godotenv v1.4.0
+	github.com/joho/godotenv v1.5.1
 	github.com/shurcooL/githubv4 v0.0.0-20221229060216-a8d4a561cc93
 	golang.org/x/oauth2 v0.4.0
 )
