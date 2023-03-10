@@ -48,7 +48,9 @@ func (c *gitlabClient) response(baseDate time.Time) (int, error) {
 	// 前日～翌日を指定することで当日分を取得できる
 	before := baseDate.AddDate(0, 0, 1).Format("2006-01-02")
 	after := baseDate.AddDate(0, 0, -1).Format("2006-01-02")
-	res, err := http.Get(fmt.Sprintf("https://gitlab.com/api/v4/users/%s/events?private_token=%s&before=%s&after=%s", c.userID, c.token, before, after))
+	// 上限はひとまず100とする
+	perPage := 100
+	res, err := http.Get(fmt.Sprintf("https://gitlab.com/api/v4/users/%s/events?private_token=%s&before=%s&after=%s&per_page=%d", c.userID, c.token, before, after, perPage))
 	if err != nil {
 		return 0, err
 	}
