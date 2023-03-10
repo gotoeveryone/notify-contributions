@@ -14,11 +14,11 @@ func TestGitHubGet(t *testing.T) {
 	c := gitlabClient{userID, token}
 	httpmock.Activate()
 
-	reqUrlForToday := fmt.Sprintf("https://gitlab.com/api/v4/users/%s/events?private_token=%s&before=2006-01-02&after=2005-12-31", userID, token)
+	reqUrlForToday := fmt.Sprintf("https://gitlab.com/api/v4/users/%s/events?private_token=%s&before=2006-01-02&after=2005-12-31&per_page=100", userID, token)
 	httpmock.RegisterResponder("GET", reqUrlForToday,
 		httpmock.NewStringResponder(200, "[ { \"id\": 1 }, { \"id\": 2 }, { \"id\": 3 } ]"))
 
-	reqUrlForYesterday := fmt.Sprintf("https://gitlab.com/api/v4/users/%s/events?private_token=%s&before=2006-01-03&after=2006-01-01", userID, token)
+	reqUrlForYesterday := fmt.Sprintf("https://gitlab.com/api/v4/users/%s/events?private_token=%s&before=2006-01-03&after=2006-01-01&per_page=100", userID, token)
 	httpmock.RegisterResponder("GET", reqUrlForYesterday,
 		httpmock.NewStringResponder(200, "[ { \"id\": 1 } ]"))
 
