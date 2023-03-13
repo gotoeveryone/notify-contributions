@@ -35,7 +35,7 @@ func (c *gitlabClient) Get(baseDate time.Time) (*entity.Contribution, error) {
 	}
 
 	e := entity.Contribution{
-		Type:           "Gitlab",
+		Type:           "GitLab",
 		BaseDate:       baseDate,
 		BaseDateCount:  tc,
 		YesterdayCount: yc,

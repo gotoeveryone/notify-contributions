@@ -5,6 +5,7 @@ import (
 	"gotoeveryone/notify-contributions/src/domain/entity"
 	"gotoeveryone/notify-contributions/src/infrastructure/client/github"
 	"gotoeveryone/notify-contributions/src/infrastructure/client/gitlab"
+	"gotoeveryone/notify-contributions/src/infrastructure/client/slack"
 	"gotoeveryone/notify-contributions/src/infrastructure/client/twitter"
 )
 
@@ -21,4 +22,9 @@ func NewGitlabClient(userID string, token string) client.Contribution {
 // NewTwitterClient is create client for about notification use twitter
 func NewTwitterClient(auth entity.TwitterAuth) (client.Notification, error) {
 	return twitter.NewClient(auth)
+}
+
+// NewSlackClient is create client for about notification use slack
+func NewSlackClient() client.Notification {
+	return slack.NewClient()
 }

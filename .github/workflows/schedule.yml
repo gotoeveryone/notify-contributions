@@ -35,8 +35,5 @@ jobs:
           GITHUB_USER_NAME: ${{ github.repository_owner }}
           GITLAB_USER_ID: ${{ secrets.GITLAB_USER_ID }}
           GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
-          TWITTER_ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
-          TWITTER_ACCESS_TOKEN_SECRET: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
-          TWITTER_COMSUMER_KEY: ${{ secrets.TWITTER_COMSUMER_KEY }}
-          TWITTER_COMSUMER_SECRET: ${{ secrets.TWITTER_COMSUMER_SECRET }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: go run src/cmd/main.go
