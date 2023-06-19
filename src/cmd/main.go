@@ -24,9 +24,7 @@ func notify() error {
 	// }
 	// nc, err := registry.NewTwitterClient(t)
 	// if err != nil {
-	// 	if err != nil {
-	// 		return err
-	// 	}
+	// 	return err
 	// }
 	nc := registry.NewSlackClient()
 
@@ -45,7 +43,6 @@ func main() {
 		}
 	}
 	if err := notify(); err != nil {
-		log.Println(err)
-		os.Exit(1)
+		log.Fatalln(err)
 	}
 }

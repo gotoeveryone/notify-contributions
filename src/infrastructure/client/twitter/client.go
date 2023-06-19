@@ -1,7 +1,9 @@
 package twitter
 
 import (
-	"github.com/dghubble/go-twitter/twitter"
+	"bytes"
+	"encoding/json"
+
 	"github.com/dghubble/oauth1"
 
 	"gotoeveryone/notify-contributions/src/domain/client"
@@ -10,6 +12,10 @@ import (
 
 type twitterClient struct {
 	auth entity.TwitterAuth
+}
+
+type Tweet struct {
+	Text string `json:"text"`
 }
 
 func NewClient(auth entity.TwitterAuth) (client.Notification, error) {
@@ -22,13 +28,16 @@ func NewClient(auth entity.TwitterAuth) (client.Notification, error) {
 func (c *twitterClient) Exec(message string) error {
 	config := oauth1.NewConfig(c.auth.ConsumerKey, c.auth.ConsumerSecret)
 	token := oauth1.NewToken(c.auth.AccessToken, c.auth.AccessTokenSecret)
-	httpClient := config.Client(oauth1.NoContext, token)
 
-	// Twitter client
-	client := twitter.NewClient(httpClient)
+	client := config.Client(oauth1.NoContext, token)
 
-	_, _, err := client.Statuses.Update(message, nil)
+	t := Tweet{Text: message}
+	j, err := json.Marshal(t)
 	if err != nil {
+		return err
+	}
+	body := bytes.NewBuffer(j)
+	if _, err := client.Post("https://api.twitter.com/2/tweets", "application/json", body); err != nil {
 		return err
 	}
 
