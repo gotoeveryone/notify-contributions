@@ -3,10 +3,11 @@ package usecase
 import (
 	"errors"
 	"gotoeveryone/notify-contributions/src/domain/client"
-	"log"
 	"os"
 	"strings"
 	"time"
+
+	"golang.org/x/exp/slog"
 )
 
 var (
@@ -44,7 +45,7 @@ func (u *contributionUsecase) Exec(baseDate time.Time) error {
 	}
 	message := strings.Join(messages, "\n\n")
 	if os.Getenv("DEBUG") != "" {
-		log.Println(message)
+		slog.Info(message)
 		return nil
 	}
 	return u.notification.Exec(message)

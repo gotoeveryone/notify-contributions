@@ -1,11 +1,11 @@
 package main
 
 import (
-	"log"
 	"os"
 	"time"
 
 	"github.com/joho/godotenv"
+	"golang.org/x/exp/slog"
 
 	"gotoeveryone/notify-contributions/src/domain/client"
 	"gotoeveryone/notify-contributions/src/registry"
@@ -36,13 +36,18 @@ func notify() error {
 }
 
 func main() {
+	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout, nil)))
+
 	if os.Getenv("DEBUG") != "" {
 		err := godotenv.Load()
 		if err != nil {
-			log.Fatal("Error loading .env file")
+			slog.Error("Error loading .env file", err)
+			os.Exit(1)
 		}
 	}
+
 	if err := notify(); err != nil {
-		log.Fatalln(err)
+		slog.Error("", err)
+		os.Exit(1)
 	}
 }
