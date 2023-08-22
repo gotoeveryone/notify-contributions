@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/dghubble/oauth1 v0.7.2
-	github.com/jarcoal/httpmock v1.3.0
+	github.com/jarcoal/httpmock v1.3.1
 	github.com/joho/godotenv v1.5.1
 	github.com/shurcooL/githubv4 v0.0.0-20221229060216-a8d4a561cc93
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1
