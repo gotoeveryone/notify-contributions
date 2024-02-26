@@ -3,7 +3,7 @@ module gotoeveryone/notify-contributions
 go 1.20
 
 require (
-	github.com/dghubble/oauth1 v0.7.2
+	github.com/dghubble/oauth1 v0.7.3
 	github.com/jarcoal/httpmock v1.3.1
 	github.com/joho/godotenv v1.5.1
 	github.com/shurcooL/githubv4 v0.0.0-20221229060216-a8d4a561cc93
