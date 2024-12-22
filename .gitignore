@@ -9,4 +9,7 @@
 .vscode
 
 # asdf
-.tool-versions
+/.tool-versions
+
+# mise
+/mise.toml
