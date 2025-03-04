@@ -1,6 +1,9 @@
 module gotoeveryone/notify-contributions
 
-go 1.23
+go 1.23.0
+
+toolchain go1.23.6
+
 require (
 	github.com/dghubble/oauth1 v0.7.3
 	github.com/jarcoal/httpmock v1.3.1
