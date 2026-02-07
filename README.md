@@ -5,7 +5,8 @@
 ## Requirements
 
 - Golang 1.23
-- Twitter account
+- Slack Account (Optional)
+- Twitter Account (Optional)
 
 ## Setup
 
