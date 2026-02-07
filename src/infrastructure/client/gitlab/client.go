@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
+	"strings"
 	"time"
 
 	"gotoeveryone/notify-contributions/src/domain/client"
@@ -50,7 +52,20 @@ func (c *gitlabClient) response(baseDate time.Time) (int, error) {
 	after := baseDate.AddDate(0, 0, -1).Format("2006-01-02")
 	// 上限はひとまず100とする
 	perPage := 100
-	res, err := http.Get(fmt.Sprintf("https://gitlab.com/api/v4/users/%s/events?private_token=%s&before=%s&after=%s&per_page=%d", c.userID, c.token, before, after, perPage))
+
+	query := url.Values{}
+	query.Set("before", before)
+	query.Set("after", after)
+	query.Set("per_page", fmt.Sprintf("%d", perPage))
+
+	endpoint := fmt.Sprintf("https://gitlab.com/api/v4/users/%s/events?%s", url.PathEscape(c.userID), query.Encode())
+	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
+	if err != nil {
+		return 0, err
+	}
+	req.Header.Set("PRIVATE-TOKEN", c.token)
+
+	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return 0, err
 	}
@@ -59,6 +74,9 @@ func (c *gitlabClient) response(baseDate time.Time) (int, error) {
 	b, err := io.ReadAll(res.Body)
 	if err != nil {
 		return 0, err
+	}
+	if res.StatusCode < http.StatusOK || res.StatusCode >= http.StatusMultipleChoices {
+		return 0, fmt.Errorf("gitlab api returned %s: %s", res.Status, strings.TrimSpace(string(b)))
 	}
 
 	r := []any{}

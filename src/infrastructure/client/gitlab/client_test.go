@@ -2,6 +2,7 @@ package gitlab
 
 import (
 	"fmt"
+	"net/http"
 	"testing"
 	"time"
 
@@ -13,14 +14,23 @@ func TestGitHubGet(t *testing.T) {
 	token := "test_token"
 	c := gitlabClient{userID, token}
 	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
 
-	reqUrlForToday := fmt.Sprintf("https://gitlab.com/api/v4/users/%s/events?private_token=%s&before=2006-01-02&after=2005-12-31&per_page=100", userID, token)
-	httpmock.RegisterResponder("GET", reqUrlForToday,
-		httpmock.NewStringResponder(200, "[ { \"id\": 1 }, { \"id\": 2 }, { \"id\": 3 } ]"))
+	reqUrlForToday := fmt.Sprintf("https://gitlab.com/api/v4/users/%s/events?after=2005-12-31&before=2006-01-02&per_page=100", userID)
+	httpmock.RegisterResponder("GET", reqUrlForToday, func(req *http.Request) (*http.Response, error) {
+		if req.Header.Get("PRIVATE-TOKEN") != token {
+			t.Errorf("Failed: PRIVATE-TOKEN header is not matched")
+		}
+		return httpmock.NewStringResponse(200, "[ { \"id\": 1 }, { \"id\": 2 }, { \"id\": 3 } ]"), nil
+	})
 
-	reqUrlForYesterday := fmt.Sprintf("https://gitlab.com/api/v4/users/%s/events?private_token=%s&before=2006-01-03&after=2006-01-01&per_page=100", userID, token)
-	httpmock.RegisterResponder("GET", reqUrlForYesterday,
-		httpmock.NewStringResponder(200, "[ { \"id\": 1 } ]"))
+	reqUrlForYesterday := fmt.Sprintf("https://gitlab.com/api/v4/users/%s/events?after=2006-01-01&before=2006-01-03&per_page=100", userID)
+	httpmock.RegisterResponder("GET", reqUrlForYesterday, func(req *http.Request) (*http.Response, error) {
+		if req.Header.Get("PRIVATE-TOKEN") != token {
+			t.Errorf("Failed: PRIVATE-TOKEN header is not matched")
+		}
+		return httpmock.NewStringResponse(200, "[ { \"id\": 1 } ]"), nil
+	})
 
 	r, err := c.Get(time.Date(2006, 1, 2, 0, 0, 0, 0, time.UTC))
 	if err != nil {
@@ -28,7 +38,7 @@ func TestGitHubGet(t *testing.T) {
 		return
 	}
 	if r.YesterdayCount != 3 {
-		t.Errorf("Failed: Name is not matched, actual: [%d], expected: [%d]", r.YesterdayCount, 2)
+		t.Errorf("Failed: Name is not matched, actual: [%d], expected: [%d]", r.YesterdayCount, 3)
 	}
 	if r.BaseDateCount != 1 {
 		t.Errorf("Failed: Name is not matched, actual: [%d], expected: [%d]", r.BaseDateCount, 1)
