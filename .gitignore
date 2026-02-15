@@ -13,3 +13,7 @@
 
 # mise
 /mise.toml
+
+# AWS SAM
+bootstrap
+.aws-sam/

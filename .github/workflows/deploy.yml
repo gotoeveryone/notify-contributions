@@ -1,0 +1,49 @@
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+
+jobs:
+  deploy:
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Set up Golang
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.24"
+          cache-dependency-path: |
+            **/go.sum
+
+      - name: Set up AWS SAM
+        uses: aws-actions/setup-sam@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ap-northeast-1
+
+      - name: Build
+        run: sam build
+
+      - name: Deploy
+        env:
+          APP_SECRET_ARN: ${{ secrets.APP_SECRET_ARN }}
+          GITHUB_USER_NAME: ${{ vars.GITHUB_USER_NAME }}
+          GITLAB_USER_ID: ${{ vars.GITLAB_USER_ID }}
+        run: |
+          sam deploy \
+            --parameter-overrides \
+            AppSecretArn="$APP_SECRET_ARN" \
+            GithubUserName="$GITHUB_USER_NAME" \
+            GitlabUserId="$GITLAB_USER_ID"
