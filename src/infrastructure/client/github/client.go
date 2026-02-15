@@ -2,7 +2,6 @@ package github
 
 import (
 	"context"
-	"os"
 	"time"
 
 	"github.com/shurcooL/githubv4"
@@ -14,18 +13,20 @@ import (
 
 type githubClient struct {
 	username string
+	token    string
 }
 
-func NewClient(username string) client.Contribution {
+func NewClient(username string, token string) client.Contribution {
 	return &githubClient{
 		username: username,
+		token:    token,
 	}
 }
 
 // Get is find contribution by identifier
 func (c *githubClient) Get(baseDate time.Time) (*entity.Contribution, error) {
 	src := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: os.Getenv("GITHUB_TOKEN")},
+		&oauth2.Token{AccessToken: c.token},
 	)
 	httpClient := oauth2.NewClient(context.Background(), src)
 	client := githubv4.NewClient(httpClient)

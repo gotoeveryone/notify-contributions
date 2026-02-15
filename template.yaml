@@ -1,0 +1,46 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: notify-contributions scheduled Lambda
+
+Parameters:
+  AppSecretArn:
+    Type: String
+    Description: Secrets Manager ARN that stores GITHUB_TOKEN, GITLAB_TOKEN, SLACK_WEBHOOK_URL
+  GithubUserName:
+    Type: String
+  GitlabUserId:
+    Type: String
+
+Resources:
+  NotifyContributionsFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      CodeUri: .
+      Handler: bootstrap
+      Runtime: provided.al2
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 30
+      Environment:
+        Variables:
+          GITHUB_TOKEN: !Sub "{{resolve:secretsmanager:${AppSecretArn}:SecretString:GITHUB_TOKEN}}"
+          GITHUB_USER_NAME: !Ref GithubUserName
+          GITLAB_USER_ID: !Ref GitlabUserId
+          GITLAB_TOKEN: !Sub "{{resolve:secretsmanager:${AppSecretArn}:SecretString:GITLAB_TOKEN}}"
+          SLACK_WEBHOOK_URL: !Sub "{{resolve:secretsmanager:${AppSecretArn}:SecretString:SLACK_WEBHOOK_URL}}"
+          NOTIFY_TYPE: slack
+      Events:
+        DailyRun:
+          Type: Schedule
+          Properties:
+            # 15:00 UTC (same as GitHub Actions cron "0 15 * * *")
+            Schedule: cron(0 15 * * ? *)
+            Enabled: true
+
+Outputs:
+  NotifyContributionsFunctionArn:
+    Description: Lambda function ARN
+    Value: !GetAtt NotifyContributionsFunction.Arn

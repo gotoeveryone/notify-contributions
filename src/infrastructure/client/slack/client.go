@@ -4,15 +4,18 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
-	"os"
 
 	"gotoeveryone/notify-contributions/src/domain/client"
 )
 
-type slackClient struct{}
+type slackClient struct {
+	webhookURL string
+}
 
-func NewClient() client.Notification {
-	return &slackClient{}
+func NewClient(webhookURL string) client.Notification {
+	return &slackClient{
+		webhookURL: webhookURL,
+	}
 }
 
 func (c *slackClient) Exec(message string) error {
@@ -24,7 +27,7 @@ func (c *slackClient) Exec(message string) error {
 	if err != nil {
 		return err
 	}
-	if _, err := http.Post(os.Getenv("SLACK_WEBHOOK_URL"), "application/json", bytes.NewBuffer(j)); err != nil {
+	if _, err := http.Post(c.webhookURL, "application/json", bytes.NewBuffer(j)); err != nil {
 		return err
 	}
 

@@ -18,10 +18,10 @@ type Tweet struct {
 	Text string `json:"text"`
 }
 
-func NewClient(auth entity.TwitterAuth) (client.Notification, error) {
+func NewClient(auth entity.TwitterAuth) client.Notification {
 	return &twitterClient{
 		auth: auth,
-	}, nil
+	}
 }
 
 // Exec is execute notification of summary to target

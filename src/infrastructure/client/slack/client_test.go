@@ -2,7 +2,6 @@ package slack
 
 import (
 	"fmt"
-	"os"
 	"testing"
 
 	"github.com/jarcoal/httpmock"
@@ -10,9 +9,9 @@ import (
 
 func TestNotificationExec(t *testing.T) {
 	url := "https://hoge.example.com"
-	os.Setenv("SLACK_WEBHOOK_URL", url)
-	c := slackClient{}
+	c := slackClient{webhookURL: url}
 	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
 
 	// Exact URL match
 	httpmock.RegisterResponder("POST", url,

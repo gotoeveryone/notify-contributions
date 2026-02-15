@@ -10,8 +10,8 @@ import (
 )
 
 // NewGitHubClient create client for about contribution use GitHub
-func NewGitHubClient(username string) client.Contribution {
-	return github.NewClient(username)
+func NewGitHubClient(username string, token string) client.Contribution {
+	return github.NewClient(username, token)
 }
 
 // NewGitlabClient create client for about contribution use Gitlab
@@ -20,11 +20,11 @@ func NewGitlabClient(userID string, token string) client.Contribution {
 }
 
 // NewTwitterClient is create client for about notification use twitter
-func NewTwitterClient(auth entity.TwitterAuth) (client.Notification, error) {
+func NewTwitterClient(auth entity.TwitterAuth) client.Notification {
 	return twitter.NewClient(auth)
 }
 
 // NewSlackClient is create client for about notification use slack
-func NewSlackClient() client.Notification {
-	return slack.NewClient()
+func NewSlackClient(webhookURL string) client.Notification {
+	return slack.NewClient(webhookURL)
 }
