@@ -5,6 +5,8 @@ on:
     workflows: ["CI"]
     types: [completed]
 
+permissions: {}
+
 jobs:
   deploy:
     if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main'
@@ -39,7 +41,7 @@ jobs:
       - name: Deploy
         env:
           APP_SECRET_ARN: ${{ secrets.APP_SECRET_ARN }}
-          GITHUB_USER_NAME: ${{ vars.GITHUB_USER_NAME }}
+          GITHUB_USER_NAME: ${{ github.repository_owner }}
           GITLAB_USER_ID: ${{ vars.GITLAB_USER_ID }}
         run: |
           sam deploy \
@@ -47,3 +49,17 @@ jobs:
             AppSecretArn="$APP_SECRET_ARN" \
             GithubUserName="$GITHUB_USER_NAME" \
             GitlabUserId="$GITLAB_USER_ID"
+
+  notify:
+    needs: deploy
+    if: always() && needs.deploy.result != 'skipped'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify Slack
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ needs.deploy.result }}
+          author_name: GitHub Actions
+          fields: repo,message,ref
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
