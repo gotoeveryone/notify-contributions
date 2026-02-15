@@ -42,7 +42,7 @@ jobs:
         env:
           APP_SECRET_ARN: ${{ secrets.APP_SECRET_ARN }}
           GITHUB_USER_NAME: ${{ github.repository_owner }}
-          GITLAB_USER_ID: ${{ vars.GITLAB_USER_ID }}
+          GITLAB_USER_ID: ${{ secrets.GITLAB_USER_ID }}
         run: |
           sam deploy \
             --parameter-overrides \
