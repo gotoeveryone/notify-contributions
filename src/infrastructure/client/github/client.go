@@ -2,6 +2,7 @@ package github
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/shurcooL/githubv4"
@@ -25,11 +26,14 @@ func NewClient(username string, token string) client.Contribution {
 
 // Get is find contribution by identifier
 func (c *githubClient) Get(baseDate time.Time) (*entity.Contribution, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
 	src := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: c.token},
 	)
-	httpClient := oauth2.NewClient(context.Background(), src)
-	client := githubv4.NewClient(httpClient)
+	httpClient := oauth2.NewClient(ctx, src)
+	ghClient := githubv4.NewClient(httpClient)
 
 	var query struct {
 		User struct {
@@ -53,9 +57,14 @@ func (c *githubClient) Get(baseDate time.Time) (*entity.Contribution, error) {
 		"to":    githubv4.DateTime{Time: baseDate},
 	}
 
-	err := client.Query(context.Background(), &query, variable)
-	if err != nil {
-		return nil, err
+	if err := ghClient.Query(ctx, &query, variable); err != nil {
+		return nil, fmt.Errorf(
+			"github contributions query failed (login=%s, from=%s, to=%s): %w",
+			c.username,
+			yesterday.Format("2006-01-02"),
+			baseDate.Format("2006-01-02"),
+			err,
+		)
 	}
 
 	e := entity.Contribution{
