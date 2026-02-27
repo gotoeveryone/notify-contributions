@@ -4,7 +4,7 @@
 
 ## Requirements
 
-- Golang 1.23
+- Golang 1.26.0
 - Slack Account (Optional)
 - Twitter Account (Optional)
 
