@@ -1,6 +1,7 @@
 package github
 
 import (
+	"net/http"
 	"testing"
 	"time"
 
@@ -9,11 +10,20 @@ import (
 
 func TestGitHubGet(t *testing.T) {
 	username := "test"
-	c := githubClient{username: username}
+	c := githubClient{
+		username:      username,
+		tokenProvider: NewStaticTokenProvider("github_token"),
+	}
 	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
 
 	httpmock.RegisterResponder("POST", "https://api.github.com/graphql",
-		httpmock.NewStringResponder(200, `
+		func(req *http.Request) (*http.Response, error) {
+			if req.Header.Get("Authorization") != "Bearer github_token" {
+				t.Errorf("Authorization header is not matched: %s", req.Header.Get("Authorization"))
+			}
+
+			return httpmock.NewStringResponse(200, `
     {
       "data": {
         "user": {
@@ -41,7 +51,8 @@ func TestGitHubGet(t *testing.T) {
           }
         }
       }
-    }`))
+    }`), nil
+		})
 
 	r, err := c.Get(time.Date(2006, 1, 2, 0, 0, 0, 0, time.UTC))
 	if err != nil {

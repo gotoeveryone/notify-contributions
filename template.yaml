@@ -5,7 +5,7 @@ Description: notify-contributions scheduled Lambda
 Parameters:
   AppSecretArn:
     Type: String
-    Description: Secrets Manager ARN that stores GITHUB_TOKEN, GITLAB_TOKEN, SLACK_WEBHOOK_URL
+    Description: Secrets Manager ARN that stores GitHub App values, GITLAB_TOKEN, SLACK_WEBHOOK_URL
   GithubUserName:
     Type: String
   GitlabUserId:
@@ -26,7 +26,9 @@ Resources:
       Timeout: 30
       Environment:
         Variables:
-          GITHUB_TOKEN: !Sub "{{resolve:secretsmanager:${AppSecretArn}:SecretString:GITHUB_TOKEN}}"
+          GITHUB_APP_ID: !Sub "{{resolve:secretsmanager:${AppSecretArn}:SecretString:GITHUB_APP_ID}}"
+          GITHUB_APP_INSTALLATION_ID: !Sub "{{resolve:secretsmanager:${AppSecretArn}:SecretString:GITHUB_APP_INSTALLATION_ID}}"
+          GITHUB_APP_PRIVATE_KEY: !Sub "{{resolve:secretsmanager:${AppSecretArn}:SecretString:GITHUB_APP_PRIVATE_KEY}}"
           GITHUB_USER_NAME: !Ref GithubUserName
           GITLAB_USER_ID: !Ref GitlabUserId
           GITLAB_TOKEN: !Sub "{{resolve:secretsmanager:${AppSecretArn}:SecretString:GITLAB_TOKEN}}"

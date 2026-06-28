@@ -13,14 +13,21 @@ import (
 )
 
 type githubClient struct {
-	username string
-	token    string
+	username      string
+	tokenProvider TokenProvider
 }
 
 func NewClient(username string, token string) client.Contribution {
 	return &githubClient{
-		username: username,
-		token:    token,
+		username:      username,
+		tokenProvider: NewStaticTokenProvider(token),
+	}
+}
+
+func NewClientWithTokenProvider(username string, tokenProvider TokenProvider) client.Contribution {
+	return &githubClient{
+		username:      username,
+		tokenProvider: tokenProvider,
 	}
 }
 
@@ -29,8 +36,13 @@ func (c *githubClient) Get(baseDate time.Time) (*entity.Contribution, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
+	token, err := c.tokenProvider.Token(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("github token acquisition failed: %w", err)
+	}
+
 	src := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: c.token},
+		&oauth2.Token{AccessToken: token},
 	)
 	httpClient := oauth2.NewClient(ctx, src)
 	ghClient := githubv4.NewClient(httpClient)

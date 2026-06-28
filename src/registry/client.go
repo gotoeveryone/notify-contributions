@@ -14,6 +14,16 @@ func NewGitHubClient(username string, token string) client.Contribution {
 	return github.NewClient(username, token)
 }
 
+// NewGitHubAppClient create client for about contribution using GitHub App authentication.
+func NewGitHubAppClient(username string, appID string, installationID string, privateKey string) (client.Contribution, error) {
+	tokenProvider, err := github.NewGitHubAppTokenProvider(appID, installationID, privateKey)
+	if err != nil {
+		return nil, err
+	}
+
+	return github.NewClientWithTokenProvider(username, tokenProvider), nil
+}
+
 // NewGitlabClient create client for about contribution use Gitlab
 func NewGitlabClient(userID string, token string) client.Contribution {
 	return gitlab.NewClient(userID, token)
