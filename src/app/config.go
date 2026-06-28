@@ -1,9 +1,14 @@
 package app
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
+
+	awsconfig "github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/secretsmanager"
 
 	"gotoeveryone/notify-contributions/src/domain/entity"
 )
@@ -22,21 +27,85 @@ type Config struct {
 }
 
 func LoadConfig() (*Config, error) {
+	source, err := newConfigSource(context.Background(), os.Getenv)
+	if err != nil {
+		return nil, err
+	}
+	return loadConfig(source)
+}
+
+type configSource struct {
+	getenv  func(string) string
+	secrets map[string]string
+}
+
+func newConfigSource(ctx context.Context, getenv func(string) string) (*configSource, error) {
+	source := &configSource{getenv: getenv}
+
+	appSecretArn := getenv("APP_SECRET_ARN")
+	if appSecretArn == "" {
+		return source, nil
+	}
+
+	secrets, err := loadSecretValues(ctx, appSecretArn)
+	if err != nil {
+		return nil, fmt.Errorf("load APP_SECRET_ARN: %w", err)
+	}
+	source.secrets = secrets
+
+	return source, nil
+}
+
+func loadSecretValues(ctx context.Context, secretID string) (map[string]string, error) {
+	cfg, err := awsconfig.LoadDefaultConfig(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	client := secretsmanager.NewFromConfig(cfg)
+	output, err := client.GetSecretValue(ctx, &secretsmanager.GetSecretValueInput{
+		SecretId: &secretID,
+	})
+	if err != nil {
+		return nil, err
+	}
+	if output.SecretString == nil {
+		return nil, fmt.Errorf("secret string is empty")
+	}
+
+	values := map[string]string{}
+	if err := json.Unmarshal([]byte(*output.SecretString), &values); err != nil {
+		return nil, err
+	}
+
+	return values, nil
+}
+
+func (s *configSource) value(key string) string {
+	if s.secrets != nil {
+		if value, ok := s.secrets[key]; ok {
+			return value
+		}
+	}
+	return s.getenv(key)
+}
+
+func loadConfig(source *configSource) (*Config, error) {
 	cfg := &Config{
-		GitHubToken:             os.Getenv("GITHUB_TOKEN"),
-		GitHubUser:              os.Getenv("GITHUB_USER_NAME"),
-		GitHubAppID:             os.Getenv("GITHUB_APP_ID"),
-		GitHubAppInstallationID: os.Getenv("GITHUB_APP_INSTALLATION_ID"),
-		GitHubAppPrivateKey:     normalizePrivateKey(os.Getenv("GITHUB_APP_PRIVATE_KEY")),
-		GitLabUserID:            os.Getenv("GITLAB_USER_ID"),
-		GitLabToken:             os.Getenv("GITLAB_TOKEN"),
-		NotifyType:              os.Getenv("NOTIFY_TYPE"),
-		SlackWebhook:            os.Getenv("SLACK_WEBHOOK_URL"),
+		GitHubToken:             source.value("GITHUB_TOKEN"),
+		GitHubUser:              source.value("GITHUB_USER_NAME"),
+		GitHubAppID:             source.value("GITHUB_APP_ID"),
+		GitHubAppInstallationID: source.value("GITHUB_APP_INSTALLATION_ID"),
+		GitHubAppPrivateKey:     normalizePrivateKey(source.value("GITHUB_APP_PRIVATE_KEY")),
+		GitLabUserID:            source.value("GITLAB_USER_ID"),
+		GitLabToken:             source.value("GITLAB_TOKEN"),
+		NotifyType:              source.value("NOTIFY_TYPE"),
+		SlackWebhook:            source.value("SLACK_WEBHOOK_URL"),
 		TwitterAuth: entity.TwitterAuth{
-			ConsumerKey:       os.Getenv("TWITTER_COMSUMER_KEY"),
-			ConsumerSecret:    os.Getenv("TWITTER_COMSUMER_SECRET"),
-			AccessToken:       os.Getenv("TWITTER_ACCESS_TOKEN"),
-			AccessTokenSecret: os.Getenv("TWITTER_ACCESS_TOKEN_SECRET"),
+			ConsumerKey:       source.value("TWITTER_COMSUMER_KEY"),
+			ConsumerSecret:    source.value("TWITTER_COMSUMER_SECRET"),
+			AccessToken:       source.value("TWITTER_ACCESS_TOKEN"),
+			AccessTokenSecret: source.value("TWITTER_ACCESS_TOKEN_SECRET"),
 		},
 	}
 

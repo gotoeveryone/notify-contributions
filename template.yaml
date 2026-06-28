@@ -26,14 +26,16 @@ Resources:
       Timeout: 30
       Environment:
         Variables:
-          GITHUB_APP_ID: !Sub "{{resolve:secretsmanager:${AppSecretArn}:SecretString:GITHUB_APP_ID}}"
-          GITHUB_APP_INSTALLATION_ID: !Sub "{{resolve:secretsmanager:${AppSecretArn}:SecretString:GITHUB_APP_INSTALLATION_ID}}"
-          GITHUB_APP_PRIVATE_KEY: !Sub "{{resolve:secretsmanager:${AppSecretArn}:SecretString:GITHUB_APP_PRIVATE_KEY}}"
+          APP_SECRET_ARN: !Ref AppSecretArn
           GITHUB_USER_NAME: !Ref GithubUserName
           GITLAB_USER_ID: !Ref GitlabUserId
-          GITLAB_TOKEN: !Sub "{{resolve:secretsmanager:${AppSecretArn}:SecretString:GITLAB_TOKEN}}"
-          SLACK_WEBHOOK_URL: !Sub "{{resolve:secretsmanager:${AppSecretArn}:SecretString:SLACK_WEBHOOK_URL}}"
           NOTIFY_TYPE: slack
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - secretsmanager:GetSecretValue
+              Resource: !Ref AppSecretArn
       Events:
         DailyRun:
           Type: Schedule
