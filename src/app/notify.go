@@ -15,7 +15,11 @@ func Notify(baseDate time.Time) error {
 		return err
 	}
 
-	ghc := registry.NewGitHubClient(cfg.GitHubUser, cfg.GitHubToken)
+	ghc, err := newGitHubClient(cfg)
+	if err != nil {
+		return err
+	}
+
 	glc := registry.NewGitlabClient(cfg.GitLabUserID, cfg.GitLabToken)
 
 	var nc client.Notification
@@ -33,4 +37,22 @@ func Notify(baseDate time.Time) error {
 		return err
 	}
 	return nil
+}
+
+func newGitHubClient(cfg *Config) (client.Contribution, error) {
+	if !cfg.UseGitHubApp() {
+		return registry.NewGitHubClient(cfg.GitHubUser, cfg.GitHubToken), nil
+	}
+
+	ghc, err := registry.NewGitHubAppClient(
+		cfg.GitHubUser,
+		cfg.GitHubAppID,
+		cfg.GitHubAppInstallationID,
+		cfg.GitHubAppPrivateKey,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return ghc, nil
 }
