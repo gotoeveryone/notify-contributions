@@ -3,7 +3,7 @@ module gotoeveryone/notify-contributions
 go 1.26.0
 
 require (
-	github.com/aws/aws-lambda-go v1.54.0
+	github.com/aws/aws-lambda-go v1.55.0
 	github.com/aws/aws-sdk-go-v2/config v1.33.2
 	github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.44.8
 	github.com/dghubble/oauth1 v0.7.3
