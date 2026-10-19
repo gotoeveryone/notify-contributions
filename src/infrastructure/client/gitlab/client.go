@@ -67,7 +67,7 @@ func (c *gitlabClient) response(baseDate time.Time) (int, error) {
 	if err != nil {
 		return 0, fmt.Errorf("failed to build gitlab request (date=%s): %w", baseDate.Format("2006-01-02"), err)
 	}
-	req.Header.Set("PRIVATE-TOKEN", c.token)
+	req.Header.Set("Authorization", "Bearer "+c.token)
 
 	httpClient := &http.Client{Timeout: 10 * time.Second}
 	res, err := httpClient.Do(req)

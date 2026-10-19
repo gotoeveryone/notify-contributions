@@ -20,7 +20,11 @@ type Config struct {
 	GitHubAppInstallationID string
 	GitHubAppPrivateKey     string
 	GitLabUserID            string
-	GitLabToken             string
+	GitLabOAuthClientID     string
+	GitLabOAuthClientSecret string
+	GitLabOAuthRedirectURI  string
+	GitLabOAuthRefreshToken string
+	AppSecretARN            string
 	NotifyType              string
 	SlackWebhook            string
 	TwitterAuth             entity.TwitterAuth
@@ -98,7 +102,11 @@ func loadConfig(source *configSource) (*Config, error) {
 		GitHubAppInstallationID: source.value("GITHUB_APP_INSTALLATION_ID"),
 		GitHubAppPrivateKey:     normalizePrivateKey(source.value("GITHUB_APP_PRIVATE_KEY")),
 		GitLabUserID:            source.value("GITLAB_USER_ID"),
-		GitLabToken:             source.value("GITLAB_TOKEN"),
+		GitLabOAuthClientID:     source.value("GITLAB_OAUTH_CLIENT_ID"),
+		GitLabOAuthClientSecret: source.value("GITLAB_OAUTH_CLIENT_SECRET"),
+		GitLabOAuthRedirectURI:  source.value("GITLAB_OAUTH_REDIRECT_URI"),
+		GitLabOAuthRefreshToken: source.value("GITLAB_OAUTH_REFRESH_TOKEN"),
+		AppSecretARN:            source.getenv("APP_SECRET_ARN"),
 		NotifyType:              source.value("NOTIFY_TYPE"),
 		SlackWebhook:            source.value("SLACK_WEBHOOK_URL"),
 		TwitterAuth: entity.TwitterAuth{
@@ -118,8 +126,15 @@ func loadConfig(source *configSource) (*Config, error) {
 	if err := require("GITLAB_USER_ID", cfg.GitLabUserID); err != nil {
 		return nil, err
 	}
-	if err := require("GITLAB_TOKEN", cfg.GitLabToken); err != nil {
-		return nil, err
+	for _, item := range []struct{ key, value string }{
+		{"GITLAB_OAUTH_CLIENT_ID", cfg.GitLabOAuthClientID},
+		{"GITLAB_OAUTH_CLIENT_SECRET", cfg.GitLabOAuthClientSecret},
+		{"GITLAB_OAUTH_REDIRECT_URI", cfg.GitLabOAuthRedirectURI},
+		{"GITLAB_OAUTH_REFRESH_TOKEN", cfg.GitLabOAuthRefreshToken},
+	} {
+		if err := require(item.key, item.value); err != nil {
+			return nil, err
+		}
 	}
 	if err := require("NOTIFY_TYPE", cfg.NotifyType); err != nil {
 		return nil, err

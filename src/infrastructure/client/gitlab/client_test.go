@@ -18,16 +18,16 @@ func TestGitHubGet(t *testing.T) {
 
 	reqUrlForToday := fmt.Sprintf("https://gitlab.com/api/v4/users/%s/events?after=2005-12-31&before=2006-01-02&per_page=100", userID)
 	httpmock.RegisterResponder("GET", reqUrlForToday, func(req *http.Request) (*http.Response, error) {
-		if req.Header.Get("PRIVATE-TOKEN") != token {
-			t.Errorf("Failed: PRIVATE-TOKEN header is not matched")
+		if req.Header.Get("Authorization") != "Bearer "+token {
+			t.Errorf("Failed: Authorization header is not matched")
 		}
 		return httpmock.NewStringResponse(200, "[ { \"id\": 1 }, { \"id\": 2 }, { \"id\": 3 } ]"), nil
 	})
 
 	reqUrlForYesterday := fmt.Sprintf("https://gitlab.com/api/v4/users/%s/events?after=2006-01-01&before=2006-01-03&per_page=100", userID)
 	httpmock.RegisterResponder("GET", reqUrlForYesterday, func(req *http.Request) (*http.Response, error) {
-		if req.Header.Get("PRIVATE-TOKEN") != token {
-			t.Errorf("Failed: PRIVATE-TOKEN header is not matched")
+		if req.Header.Get("Authorization") != "Bearer "+token {
+			t.Errorf("Failed: Authorization header is not matched")
 		}
 		return httpmock.NewStringResponse(200, "[ { \"id\": 1 } ]"), nil
 	})

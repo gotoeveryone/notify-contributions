@@ -5,12 +5,16 @@ import "testing"
 func TestLoadConfigFromEnv(t *testing.T) {
 	cfg, err := loadConfig(&configSource{
 		getenv: mapGetenv(map[string]string{
+			"APP_SECRET_ARN":             "test-secret-arn",
 			"GITHUB_APP_ID":              "12345",
 			"GITHUB_APP_INSTALLATION_ID": "67890",
 			"GITHUB_APP_PRIVATE_KEY":     "private_key",
 			"GITHUB_USER_NAME":           "github-user",
 			"GITLAB_USER_ID":             "12345678",
-			"GITLAB_TOKEN":               "gitlab-token",
+			"GITLAB_OAUTH_CLIENT_ID":     "gitlab-client-id",
+			"GITLAB_OAUTH_CLIENT_SECRET": "gitlab-client-secret",
+			"GITLAB_OAUTH_REDIRECT_URI":  "https://example.com/callback",
+			"GITLAB_OAUTH_REFRESH_TOKEN": "gitlab-refresh-token",
 			"NOTIFY_TYPE":                "slack",
 			"SLACK_WEBHOOK_URL":          "slack-webhook",
 		}),
@@ -27,15 +31,43 @@ func TestLoadConfigFromEnv(t *testing.T) {
 	}
 }
 
+func TestLoadConfigWithLocalGitLabRefreshToken(t *testing.T) {
+	cfg, err := loadConfig(&configSource{
+		getenv: mapGetenv(map[string]string{
+			"GITHUB_APP_ID":              "12345",
+			"GITHUB_APP_INSTALLATION_ID": "67890",
+			"GITHUB_APP_PRIVATE_KEY":     "private_key",
+			"GITHUB_USER_NAME":           "github-user",
+			"GITLAB_USER_ID":             "12345678",
+			"GITLAB_OAUTH_CLIENT_ID":     "client-id",
+			"GITLAB_OAUTH_CLIENT_SECRET": "client-secret",
+			"GITLAB_OAUTH_REDIRECT_URI":  "http://localhost:8080/callback",
+			"GITLAB_OAUTH_REFRESH_TOKEN": "local-refresh-token",
+			"NOTIFY_TYPE":                "slack",
+			"SLACK_WEBHOOK_URL":          "slack-webhook",
+		}),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cfg.AppSecretARN != "" || cfg.GitLabOAuthRefreshToken != "local-refresh-token" {
+		t.Fatal("local GitLab OAuth refresh token was not loaded")
+	}
+}
+
 func TestLoadConfigPrefersSecretValuesAndFallsBackToEnv(t *testing.T) {
 	cfg, err := loadConfig(&configSource{
 		getenv: mapGetenv(map[string]string{
+			"APP_SECRET_ARN":             "test-secret-arn",
 			"GITHUB_APP_ID":              "env-github-app-id",
 			"GITHUB_APP_INSTALLATION_ID": "env-installation-id",
 			"GITHUB_APP_PRIVATE_KEY":     "env-private-key",
 			"GITHUB_USER_NAME":           "github-user",
 			"GITLAB_USER_ID":             "12345678",
-			"GITLAB_TOKEN":               "env-gitlab-token",
+			"GITLAB_OAUTH_CLIENT_ID":     "env-client-id",
+			"GITLAB_OAUTH_CLIENT_SECRET": "env-client-secret",
+			"GITLAB_OAUTH_REDIRECT_URI":  "https://example.com/callback",
+			"GITLAB_OAUTH_REFRESH_TOKEN": "env-refresh-token",
 			"NOTIFY_TYPE":                "slack",
 			"SLACK_WEBHOOK_URL":          "env-slack-webhook",
 		}),
@@ -43,7 +75,7 @@ func TestLoadConfigPrefersSecretValuesAndFallsBackToEnv(t *testing.T) {
 			"GITHUB_APP_ID":              "secret-github-app-id",
 			"GITHUB_APP_INSTALLATION_ID": "secret-installation-id",
 			"GITHUB_APP_PRIVATE_KEY":     "secret-private-key",
-			"GITLAB_TOKEN":               "secret-gitlab-token",
+			"GITLAB_OAUTH_REFRESH_TOKEN": "secret-refresh-token",
 			"SLACK_WEBHOOK_URL":          "secret-slack-webhook",
 		},
 	})
@@ -57,8 +89,8 @@ func TestLoadConfigPrefersSecretValuesAndFallsBackToEnv(t *testing.T) {
 	if cfg.GitHubUser != "github-user" {
 		t.Errorf("GitHubUser is not matched, actual: [%s], expected: [%s]", cfg.GitHubUser, "github-user")
 	}
-	if cfg.GitLabToken != "secret-gitlab-token" {
-		t.Errorf("GitLabToken is not matched, actual: [%s], expected: [%s]", cfg.GitLabToken, "secret-gitlab-token")
+	if cfg.GitLabOAuthRefreshToken != "secret-refresh-token" {
+		t.Errorf("GitLabOAuthRefreshToken is not matched")
 	}
 	if cfg.GitLabUserID != "12345678" {
 		t.Errorf("GitLabUserID is not matched, actual: [%s], expected: [%s]", cfg.GitLabUserID, "12345678")
