@@ -3,6 +3,7 @@
 
 # dotenv
 .env
+.gitlab-oauth-refresh-token
 
 # Editor
 .idea

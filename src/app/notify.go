@@ -20,7 +20,11 @@ func Notify(baseDate time.Time) error {
 		return err
 	}
 
-	glc := registry.NewGitlabClient(cfg.GitLabUserID, cfg.GitLabToken)
+	gitLabToken, err := refreshGitLabToken(cfg)
+	if err != nil {
+		return err
+	}
+	glc := registry.NewGitlabClient(cfg.GitLabUserID, gitLabToken)
 
 	var nc client.Notification
 	switch cfg.NotifyType {
