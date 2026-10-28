@@ -5,7 +5,7 @@ go 1.26.0
 require (
 	github.com/aws/aws-lambda-go v1.55.1
 	github.com/aws/aws-sdk-go-v2/config v1.33.9
-	github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.50.4
+	github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.50.5
 	github.com/dghubble/oauth1 v0.7.3
 	github.com/jarcoal/httpmock v1.4.2
 	github.com/joho/godotenv v1.5.1
